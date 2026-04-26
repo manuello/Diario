@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diario Attività</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Il Mio Diario</h1>
+            <p>Gestisci le tue attività e analizza i tuoi progressi</p>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="today">Oggi</button>
+                <button class="tab-btn" data-tab="history">Abitudini</button>
+                <button class="tab-btn" data-tab="analysis">Analisi</button>
+            </div>
+            <div class="header-actions">
+                <button id="auth-btn" class="icon-btn" title="Cloud Sync">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.4-1.9-4.3-4.3-4.5.3-.6.5-1.3.5-2 0-2.5-2-4.5-4.5-4.5-1.9 0-3.5 1.1-4.2 2.7-.8-.5-1.8-.7-2.8-.7-2.8 0-5 2.2-5 5 0 .4.1.8.2 1.2-1.9.4-3.2 2.1-3.2 4.1 0 2.3 1.9 4.2 4.2 4.2h10.6"></path></svg>
+                </button>
+                <button id="export-btn" class="icon-btn" title="Esporta dati">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </button>
+                <button id="import-btn" class="icon-btn" title="Importa dati">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </button>
+                <input type="file" id="import-file" class="hidden" accept=".json">
+            </div>
+        </header>
+
+        <main id="view-today">
+            <div class="editing-header">
+                <div class="form-group row-group">
+                    <label for="editing-date">Stai compilando il:</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button id="prev-day-btn" class="date-nav-btn" aria-label="Giorno precedente">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <input type="date" id="editing-date" class="custom-select" style="flex: 1;">
+                        <button id="next-day-btn" class="date-nav-btn" aria-label="Giorno successivo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group row-group">
+                    <label for="daily-weight">Peso (kg):</label>
+                    <input type="number" id="daily-weight" step="0.1" placeholder="70.5" class="custom-select" style="width: 80px;">
+                </div>
+                <div class="form-group row-group">
+                    <label for="daily-steps">Passi:</label>
+                    <input type="number" id="daily-steps" placeholder="10000" class="custom-select" style="width: 100px;">
+                </div>
+                <div class="form-group row-group">
+                    <label for="daily-distance">Distanza Tot (m):</label>
+                    <input type="number" id="daily-distance" placeholder="5000" class="custom-select" style="width: 100px;">
+                </div>
+            </div>
+
+            <div class="measurements-card">
+                <div class="measurements-reminder-text">
+                    Oggi è il giorno delle misure!
+                </div>
+                <h3>Misure Corporee (cm)</h3>
+                <div class="measurements-grid">
+                    <div class="form-group">
+                        <label for="measure-waist">Vita</label>
+                        <input type="number" id="measure-waist" step="0.1" placeholder="--" class="custom-select">
+                    </div>
+                    <div class="form-group">
+                        <label for="measure-hips">Fianchi</label>
+                        <input type="number" id="measure-hips" step="0.1" placeholder="--" class="custom-select">
+                    </div>
+                    <div class="form-group">
+                        <label for="measure-chest">Torace</label>
+                        <input type="number" id="measure-chest" step="0.1" placeholder="--" class="custom-select">
+                    </div>
+                </div>
+            </div>
+
+            <div class="water-tracker-card">
+                <div class="water-info">
+                    <div class="water-text">
+                        <h3>Idratazione</h3>
+                        <p><span id="water-current">0.00</span> / <span id="water-target">3.00</span> Litri</p>
+                    </div>
+                    <div class="water-controls">
+                        <button id="remove-water-btn" class="water-btn">- 0.25L</button>
+                        <button id="add-water-btn" class="water-btn primary">+ 0.25L</button>
+                    </div>
+                </div>
+                <div class="water-bar-bg">
+                    <div id="water-bar-fill" class="water-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <section class="task-section">
+                <div class="section-header" style="flex-wrap: wrap; gap: 1rem;">
+                    <h2>Le tue Attività</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="add-snack-btn" class="btn-secondary" title="Aggiungi uno snack">+ Snack</button>
+                        <button id="add-walk-btn" class="btn-secondary" title="Aggiungi una camminata">+ Camminata</button>
+                        <button id="add-optional-task-btn" class="btn-primary">+ Altro</button>
+                    </div>
+                </div>
+                <div id="fixed-tasks-list" class="task-list">
+                    <!-- Tasks will be generated here -->
+                </div>
+            </section>
+
+            <div class="notes-card">
+                <h3>Note del Giorno</h3>
+                <textarea id="daily-notes-text" placeholder="Com'è andata oggi? (es. allenamento, sonno, pensieri...)" class="custom-notes-area"></textarea>
+            </div>
+        </main>
+
+        <main id="view-history" class="hidden">
+            <div class="habit-tracker-container">
+                <div class="section-header">
+                    <h2>Tracker Abitudini (Ultimi 7 giorni)</h2>
+                </div>
+                <div class="habit-table-wrapper">
+                    <table id="habit-table" class="habit-table">
+                        <thead>
+                            <tr id="habit-table-header">
+                                <!-- Days will be generated here -->
+                            </tr>
+                        </thead>
+                        <tbody id="habit-table-body">
+                            <!-- Habits will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <main id="view-analysis" class="hidden">
+            <div class="analysis-header">
+                <h2>I Tuoi Progressi</h2>
+                <div class="form-group row-group">
+                    <label for="analysis-range">Periodo:</label>
+                    <select id="analysis-range" class="custom-select">
+                        <option value="7">Ultimi 7 giorni</option>
+                        <option value="30">Ultimi 30 giorni</option>
+                        <option value="90">Ultimi 90 giorni</option>
+                        <option value="all">Tutto lo storico</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Streaks Section -->
+            <div class="streaks-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                <div class="streak-card">
+                    <div class="streak-icon">🔥</div>
+                    <div class="streak-info">
+                        <span class="streak-label">Giorni Perfetti</span>
+                        <span id="streak-perfect-days" class="streak-value">0</span>
+                    </div>
+                </div>
+                <div class="streak-card clean">
+                    <div class="streak-icon">🥗</div>
+                    <div class="streak-info">
+                        <span class="streak-label">Senza Sgarri</span>
+                        <span id="streak-no-sgarri" class="streak-value">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weekly-goals-container">
+                <div class="section-header">
+                    <h2>Obiettivi Settimanali</h2>
+                    <button id="edit-goals-btn" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">⚙️ Imposta</button>
+                </div>
+
+            <div class="stats-grid">
+                    <div class="goal-card" id="goal-steps">
+                        <div class="goal-info">
+                            <span class="goal-label">👣 Passi</span>
+                            <span class="goal-progress-text">0 / 0</span>
+                        </div>
+                        <div class="goal-bar-bg">
+                            <div class="goal-bar-fill" style="width: 0%; background: var(--grad-primary);"></div>
+                        </div>
+                    </div>
+                    <div class="goal-card" id="goal-swim">
+                        <div class="goal-info">
+                            <span class="goal-label">🏊‍♂️ Nuoto (m)</span>
+                            <span class="goal-progress-text">0 / 0</span>
+                        </div>
+                        <div class="goal-bar-bg">
+                            <div class="goal-bar-fill" style="width: 0%; background: var(--grad-success);"></div>
+                        </div>
+                    </div>
+                    <div class="goal-card" id="goal-workouts">
+                        <div class="goal-info">
+                            <span class="goal-label">🔥 Allenamenti</span>
+                            <span class="goal-progress-text">0 / 0</span>
+                        </div>
+                        <div class="goal-bar-bg">
+                            <div class="goal-bar-fill" style="width: 0%; background: var(--accent-color);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid" style="margin-top: 1rem;">
+                <div class="analysis-card" style="display: flex; flex-direction: column; align-items: center;">
+                    <h3>Qualità Alimentazione (Pasti)</h3>
+                    <div class="chart-container" style="position: relative; height:250px; width:100%; display: flex; justify-content: center;">
+                        <canvas id="dietPieChart"></canvas>
+                    </div>
+                </div>
+                <div class="analysis-card" id="diet-stats-card">
+                    <h3>Riepilogo Alimentare</h3>
+                    <div class="diet-stats-container" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                        <div class="diet-stat-item">
+                            <span class="stat-label">Pasti Totali</span>
+                            <span id="total-meals-count" class="stat-value">0</span>
+                        </div>
+                        <div class="diet-stat-item">
+                            <span class="stat-label" style="color: #10b981;">Pasti Regolari</span>
+                            <span id="regular-meals-count" class="stat-value">0</span>
+                        </div>
+                        <div class="diet-stat-item">
+                            <span class="stat-label" style="color: #f43f5e;">Sgarri</span>
+                            <span id="sgarri-count" class="stat-value">0</span>
+                        </div>
+                        <div class="diet-stat-item" style="border-top: 1px solid var(--card-border); padding-top: 0.8rem;">
+                            <span class="stat-label">Percentuale Sgarri</span>
+                            <span id="sgarri-percent" class="stat-value" style="font-size: 1.5rem; color: var(--accent-color);">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid" style="margin-top: 1rem;">
+                <div class="analysis-card full-width" id="swim-summary-card">
+                    <h3>Riepilogo Prestazioni Nuoto</h3>
+                    <div class="swim-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                        <div class="diet-stat-item">
+                            <span class="stat-label">Distanza Totale</span>
+                            <span id="swim-total-dist" class="stat-value">0 m</span>
+                        </div>
+                        <div class="diet-stat-item">
+                            <span class="stat-label">Allenamenti</span>
+                            <span id="swim-total-sessions" class="stat-value">0</span>
+                        </div>
+                        <div class="diet-stat-item">
+                            <span class="stat-label">Media Tempo / Vasca</span>
+                            <span id="swim-avg-pace" class="stat-value">0s</span>
+                        </div>
+                        <div class="diet-stat-item">
+                            <span class="stat-label">Record Personale</span>
+                            <span id="swim-best-pace" class="stat-value">0s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid" style="margin-top: 1rem;">
+                <div class="analysis-card full-width">
+                    <h3>Idratazione Settimanale (Litri)</h3>
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
+                        <canvas id="waterChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid" style="margin-top: 1rem;">
+                <div class="analysis-card full-width">
+                    <h3>Andamento Misure (cm)</h3>
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
+                        <canvas id="measurementsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <h3>Peso Corporeo</h3>
+                    <div class="chart-container" style="position: relative; height:250px; width:100%">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+                <div class="analysis-card">
+                    <h3>Passi Giornalieri</h3>
+                    <div class="chart-container" style="position: relative; height:250px; width:100%">
+                        <canvas id="stepsChart"></canvas>
+                    </div>
+                </div>
+                <div class="analysis-card full-width">
+                    <h3>Performance Nuoto (Secondi per Vasca)</h3>
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
+                        <canvas id="swimPerfChart"></canvas>
+                    </div>
+                </div>
+                <div class="analysis-card full-width">
+                    <h3>Nuoto e Distanza (Metri Totali)</h3>
+                    <div class="chart-container" style="position: relative; height:300px; width:100%">
+                        <canvas id="swimChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="analysis-table-container">
+                <h3>Tabella Riepilogativa</h3>
+                <table id="analysis-table" class="analysis-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Peso</th>
+                            <th>Passi</th>
+                            <th>Distanza Tot</th>
+                            <th>Nuoto (V)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analysis-table-body">
+                        <!-- Content generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="analysis-table-container" style="margin-top: 2rem;">
+                <h3>Performance Nuoto (Tempo Medio/Vasca)</h3>
+                <table id="swim-performance-table" class="analysis-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Vasche</th>
+                            <th>Tempo Tot</th>
+                            <th>Media/Vasca</th>
+                        </tr>
+                    </thead>
+                    <tbody id="swim-performance-body">
+                        <!-- Content generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="analysis-grid" style="margin-top: 2rem;">
+                <div class="analysis-card full-width" style="border: 1px dashed var(--accent-color); background: rgba(99, 102, 241, 0.05);">
+                    <h3>Sicurezza Dati</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        I tuoi dati sono salvati localmente nel browser. Scarica un backup periodico per evitare di perderli se pulisci la cache o cambi browser.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button id="export-btn-big" class="btn-primary" style="flex: 1; padding: 1rem; min-width: 200px;">📤 Esporta Backup (JSON)</button>
+                        <button id="import-btn-big" class="btn-secondary" style="flex: 1; padding: 1rem; min-width: 200px;">📥 Importa Backup</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content auth-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Cloud Sync</h3>
+                <button id="close-auth-modal" class="close-modal">&times;</button>
+            </div>
+            <div id="auth-form-container">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.4;">
+                    Accedi per sincronizzare i tuoi dati su tutti i tuoi dispositivi in tempo reale.
+                </p>
+                <div class="form-group">
+                    <label for="auth-email">Email</label>
+                    <input type="email" id="auth-email" placeholder="tua@email.com" class="custom-select" style="width: 100%;">
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="custom-select" style="width: 100%;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 2rem;">
+                    <button id="login-btn" class="btn-primary" style="width: 100%; padding: 1rem; font-weight: 700;">Accedi</button>
+                    <button id="signup-btn" class="btn-secondary" style="width: 100%; padding: 0.9rem;">Crea Account</button>
+                </div>
+                <p id="auth-error" style="color: #f43f5e; font-size: 0.85rem; margin-top: 1rem; text-align: center; background: rgba(244, 63, 94, 0.1); padding: 0.5rem; border-radius: 8px;" class="hidden"></p>
+            </div>
+            <div id="user-info-container" class="hidden" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Sei connesso come:<br><strong id="user-email-display" style="color: var(--text-primary);"></strong></p>
+                <button id="sync-now-btn" class="btn-primary" style="width: 100%; padding: 0.8rem; margin-bottom: 0.8rem;">🔄 Sincronizza Ora</button>
+                <button id="logout-btn" class="btn-secondary" style="width: 100%; padding: 0.8rem;">Disconnetti Cloud</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals for completing a task, etc. (existing) -->
+    <div id="completion-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-task-title">Completa Attività</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="completion-form">
+                <div class="form-group">
+                    <label for="task-time">Orario in cui l'hai svolta</label>
+                    <input type="time" id="task-time" required>
+                </div>
+                <div class="form-group" id="duration-field-group">
+                    <label for="task-duration">Durata (in minuti) <span style="font-size: 0.8rem; opacity: 0.6;">(opzionale)</span></label>
+                    <input type="number" id="task-duration" min="1" placeholder="Es. 30">
+                </div>
+                <div id="extra-fields-nuoto" class="hidden">
+                    <div class="form-group">
+                        <label for="task-vasche">Numero di vasche (opzionale)</label>
+                        <input type="number" id="task-vasche" min="1" placeholder="Es. 40">
+                    </div>
+                    <div class="form-group">
+                        <label for="task-distanza">Distanza in metri (opzionale)</label>
+                        <input type="number" id="task-distanza" min="1" placeholder="Es. 1000">
+                    </div>
+                </div>
+                <div id="extra-fields-camminata" class="hidden">
+                    <div class="form-group">
+                        <label for="task-distanza-camminata">Distanza in metri (opzionale)</label>
+                        <input type="number" id="task-distanza-camminata" min="1" placeholder="Es. 5000">
+                    </div>
+                </div>
+                <div id="diet-warning-group" class="hidden" style="margin-bottom: 1.2rem; background: rgba(244, 63, 94, 0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(244, 63, 94, 0.2);">
+                    <label style="display: flex; align-items: center; gap: 0.8rem; cursor: pointer; color: #f43f5e; font-weight: 700; font-size: 1.1rem;">
+                        <input type="checkbox" id="diet-warning-check" style="width: 22px; height: 22px; accent-color: #f43f5e;">
+                        Sgarro
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="task-notes">Note aggiuntive</label>
+                    <textarea id="task-notes" rows="3" placeholder="Aggiungi dettagli se necessari..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary close-modal">Annulla</button>
+                    <button type="submit" class="btn-primary">Conferma</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for adding optional task -->
+    <div id="add-task-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuova Attività Opzionale</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="add-task-form">
+                <div class="form-group">
+                    <label for="new-task-name">Nome Attività</label>
+                    <input type="text" id="new-task-name" required placeholder="Es. Palestra, Leggere un libro...">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary close-modal">Annulla</button>
+                    <button type="submit" class="btn-primary">Crea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for editing goals -->
+    <div id="goals-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Imposta Obiettivi Settimanali</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="goals-form">
+                <div class="form-group">
+                    <label for="goal-steps-input">Passi Settimanali</label>
+                    <input type="number" id="goal-steps-input" required placeholder="Es. 70000">
+                </div>
+                <div class="form-group">
+                    <label for="goal-swim-input">Metri Nuoto Settimanali</label>
+                    <input type="number" id="goal-swim-input" required placeholder="Es. 5000">
+                </div>
+                <div class="form-group">
+                    <label for="goal-workouts-input">Allenamenti Settimanali</label>
+                    <input type="number" id="goal-workouts-input" required placeholder="Es. 4">
+                </div>
+                <div class="form-group">
+                    <label for="goal-water-input">Obiettivo Acqua Giornaliero (Litri)</label>
+                    <input type="number" id="goal-water-input" step="0.1" placeholder="Es. 3.0">
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                    <h4 style="margin-bottom: 1rem; color: var(--accent-color);">Target Peso</h4>
+                    <div class="form-group">
+                        <label for="goal-weight-final">Peso Obiettivo Finale (kg)</label>
+                        <input type="number" id="goal-weight-final" step="0.1" placeholder="Es. 75.0">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Obiettivo Intermedio 1</label>
+                            <input type="number" id="goal-weight-int1" step="0.1" placeholder="kg">
+                        </div>
+                        <div class="form-group">
+                            <label>Data Prevista</label>
+                            <input type="date" id="goal-date-int1">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Obiettivo Intermedio 2</label>
+                            <input type="number" id="goal-weight-int2" step="0.1" placeholder="kg">
+                        </div>
+                        <div class="form-group">
+                            <label>Data Prevista</label>
+                            <input type="date" id="goal-date-int2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary close-modal">Annulla</button>
+                    <button type="submit" class="btn-primary">Salva Obiettivi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
