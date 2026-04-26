@@ -6,7 +6,7 @@ try {
     if (typeof supabase !== 'undefined' && supabase.createClient) {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
-} catch(e) {
+} catch (e) {
     console.error("Supabase load error:", e);
 }
 
@@ -80,7 +80,7 @@ function init() {
     if (savedMeasurements) measurementsData = JSON.parse(savedMeasurements);
     const savedNotes = localStorage.getItem('diario-daily-notes');
     if (savedNotes) dailyNotesData = JSON.parse(savedNotes);
-    
+
     const savedGoals = localStorage.getItem('diario-goals');
     if (savedGoals) {
         weeklyGoals = JSON.parse(savedGoals);
@@ -114,7 +114,7 @@ function loadTasks() {
     const lastDate = localStorage.getItem('diario-date');
 
     waterData = JSON.parse(localStorage.getItem('diario-water') || '{}');
-    
+
     if (saved && lastDate === todayISO) {
         tasks = JSON.parse(saved);
         const optionalTasks = tasks.filter(t => t.type === 'optional');
@@ -148,9 +148,9 @@ function changeEditingDate(newDateStr) {
             tasks = JSON.parse(JSON.stringify(defaultFixedTasks));
         }
     }
-    
+
     if (editingDateInput) editingDateInput.value = currentEditingDate;
-    
+
     updateInputsForDate();
     renderTasks();
     renderWaterTracker();
@@ -187,12 +187,12 @@ function updateInputsForDate() {
     if (dailyWeightInput) dailyWeightInput.value = weightData[currentEditingDate] || '';
     if (dailyStepsInput) dailyStepsInput.value = stepsData[currentEditingDate] || '';
     if (dailyDistanceInput) dailyDistanceInput.value = dailyDistanceData[currentEditingDate] || '';
-    
+
     const m = measurementsData[currentEditingDate] || {};
     if (measureWaistInput) measureWaistInput.value = m.waist || '';
     if (measureHipsInput) measureHipsInput.value = m.hips || '';
     if (measureChestInput) measureChestInput.value = m.chest || '';
-    
+
     if (dailyNotesInput) dailyNotesInput.value = dailyNotesData[currentEditingDate] || '';
 }
 
@@ -236,7 +236,7 @@ function setupEventListeners() {
             const steps = parseInt(e.target.value) || 0;
             stepsData[currentEditingDate] = steps.toString();
             localStorage.setItem('diario-steps', JSON.stringify(stepsData));
-            
+
             const calculatedDistance = Math.round(steps * 0.7);
             dailyDistanceInput.value = calculatedDistance;
             dailyDistanceData[currentEditingDate] = calculatedDistance.toString();
@@ -270,13 +270,13 @@ function setupEventListeners() {
 
     if (completionForm) completionForm.addEventListener('submit', handleTaskCompletion);
     if (addTaskForm) addTaskForm.addEventListener('submit', handleAddTask);
-    
+
     // Export/Import - Safe listeners
     const exportBtn = document.getElementById('export-btn');
     const exportBtnBig = document.getElementById('export-btn-big');
     if (exportBtn) exportBtn.addEventListener('click', exportData);
     if (exportBtnBig) exportBtnBig.addEventListener('click', exportData);
-    
+
     const importBtn = document.getElementById('import-btn');
     const importBtnBig = document.getElementById('import-btn-big');
     const importFile = document.getElementById('import-file');
@@ -333,14 +333,14 @@ function setupEventListeners() {
             if (workoutsInput) workoutsInput.value = weeklyGoals.workouts;
             const waterGoalInput = document.getElementById('goal-water-input');
             if (waterGoalInput) waterGoalInput.value = weeklyGoals.waterLiters || 3.0;
-            
+
             // Weight Goals
             const wFinal = document.getElementById('goal-weight-final');
             const wInt1 = document.getElementById('goal-weight-int1');
             const dInt1 = document.getElementById('goal-date-int1');
             const wInt2 = document.getElementById('goal-weight-int2');
             const dInt2 = document.getElementById('goal-date-int2');
-            
+
             if (wFinal) wFinal.value = weeklyGoals.weightFinal || '';
             if (wInt1) wInt1.value = weeklyGoals.weightInt1 || '';
             if (dInt1) dInt1.value = weeklyGoals.dateInt1 || '';
@@ -363,7 +363,7 @@ function setupEventListeners() {
             if (workoutsInput) weeklyGoals.workouts = parseInt(workoutsInput.value) || 0;
             const waterGoalInput = document.getElementById('goal-water-input');
             if (waterGoalInput) weeklyGoals.waterLiters = parseFloat(waterGoalInput.value) || 3.0;
-            
+
             // Weight Goals Save
             weeklyGoals.weightFinal = parseFloat(document.getElementById('goal-weight-final').value) || null;
             weeklyGoals.weightInt1 = parseFloat(document.getElementById('goal-weight-int1').value) || null;
@@ -540,11 +540,11 @@ function openModalForTask(task, isEdit = false) {
 
     const now = new Date();
     const defaultTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-    
+
     document.getElementById('task-time').value = isEdit ? (task.time || '') : defaultTime;
     document.getElementById('task-duration').value = isEdit ? (task.duration || '') : '';
     document.getElementById('task-notes').value = isEdit ? (task.notes || '') : '';
-    
+
     const nameLower = task.name.toLowerCase();
     const noDurationTasks = ['sveglia', 'colazione', 'pranzo', 'cena', 'snack', 'nanna'];
     const hideDuration = noDurationTasks.some(t => nameLower.includes(t));
@@ -582,9 +582,9 @@ function handleTaskCompletion(e) {
     if (currentTaskToComplete.name.toLowerCase().includes('camminata')) {
         currentTaskToComplete.distanza = document.getElementById('task-distanza-camminata').value;
     }
-    
+
     currentTaskToComplete.badDiet = document.getElementById('diet-warning-check').checked;
-    
+
     if (isAddingNewTask) {
         tasks.push(currentTaskToComplete);
         isAddingNewTask = false;
@@ -668,8 +668,8 @@ function renderHistory() {
             if (habit.name === 'Snack') {
                 const snackTasks = dayTasks.filter(t => t.name.toLowerCase().includes('snack') && t.completed);
                 const hasSgarro = snackTasks.some(t => t.badDiet);
-                td.innerHTML = snackTasks.length > 0 ? 
-                    `<span class="habit-snack-count" style="${hasSgarro ? 'background: #f43f5e;' : ''}">${snackTasks.length}</span>` 
+                td.innerHTML = snackTasks.length > 0 ?
+                    `<span class="habit-snack-count" style="${hasSgarro ? 'background: #f43f5e;' : ''}">${snackTasks.length}</span>`
                     : '-';
             } else {
                 const task = dayTasks.find(t => t.name.toLowerCase().includes(habit.name.toLowerCase()) && t.completed);
@@ -694,7 +694,7 @@ function renderAnalysis() {
     const ctxS = document.getElementById('stepsChart');
     const ctxSw = document.getElementById('swimChart');
     if (!ctxW || !ctxS || !ctxSw) return;
-    
+
     renderWeeklyGoals();
     renderDietAnalysis();
     renderWaterAnalysis();
@@ -706,11 +706,11 @@ function renderAnalysis() {
     const labels = dates.map(d => d.split('-').reverse().slice(0, 2).join('/'));
 
     if (weightChartInstance) weightChartInstance.destroy();
-    
-    const weightDatasets = [{ 
-        label: 'Peso (kg)', 
-        data: dates.map(d => weightData[d]), 
-        borderColor: '#6366f1', 
+
+    const weightDatasets = [{
+        label: 'Peso (kg)',
+        data: dates.map(d => weightData[d]),
+        borderColor: '#6366f1',
         tension: 0.3,
         pointRadius: 4,
         pointBackgroundColor: '#6366f1'
@@ -922,7 +922,7 @@ function renderWeeklyGoals() {
 
     last7Days.forEach(date => {
         totalSteps += parseInt(stepsData[date] || 0);
-        
+
         const dayTasks = historyData[date] || [];
         dayTasks.forEach(t => {
             if (t.completed) {
@@ -931,8 +931,8 @@ function renderWeeklyGoals() {
                 }
                 // Contiamo come "allenamento" nuoto, yoga, palestra, camminata > 2000m
                 const name = t.name.toLowerCase();
-                if (name.includes('nuoto') || name.includes('yoga') || name.includes('palestra') || 
-                   (name.includes('camminata') && parseInt(t.distanza || 0) > 2000)) {
+                if (name.includes('nuoto') || name.includes('yoga') || name.includes('palestra') ||
+                    (name.includes('camminata') && parseInt(t.distanza || 0) > 2000)) {
                     totalWorkouts++;
                 }
             }
@@ -949,11 +949,11 @@ function updateGoalCard(id, current, target) {
     if (!card) return;
     const progressText = card.querySelector('.goal-progress-text');
     const barFill = card.querySelector('.goal-bar-fill');
-    
+
     progressText.textContent = `${current.toLocaleString()} / ${target.toLocaleString()}`;
     const percent = Math.min(100, (current / target) * 100) || 0;
     barFill.style.width = percent + '%';
-    
+
     if (percent >= 100) {
         barFill.style.background = 'var(--grad-success)';
     } else {
@@ -1053,7 +1053,7 @@ function renderDietAnalysis() {
 
     // Render Pie Chart
     if (dietPieChartInstance) dietPieChartInstance.destroy();
-    
+
     dietPieChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -1108,13 +1108,13 @@ function renderStreaks() {
 
     let perfectStreak = 0;
     let noSgarriStreak = 0;
-    
+
     // Perfect Day Streak
     for (const date of dates) {
         const dayTasks = historyData[date];
         const fixedTasks = dayTasks.filter(t => t.type === 'fixed');
         const allCompleted = fixedTasks.length > 0 && fixedTasks.every(t => t.completed);
-        
+
         if (allCompleted) {
             perfectStreak++;
         } else {
@@ -1128,7 +1128,7 @@ function renderStreaks() {
     for (const date of dates) {
         const dayTasks = historyData[date];
         const hasSgarro = dayTasks.some(t => t.badDiet === true);
-        
+
         if (!hasSgarro) {
             noSgarriStreak++;
         } else {
@@ -1138,7 +1138,7 @@ function renderStreaks() {
 
     const perfEl = document.getElementById('streak-perfect-days');
     const sgarroEl = document.getElementById('streak-no-sgarri');
-    
+
     if (perfEl) perfEl.textContent = perfectStreak;
     if (sgarroEl) sgarroEl.textContent = noSgarriStreak;
 }
@@ -1146,11 +1146,11 @@ function renderStreaks() {
 function checkMeasurementReminder() {
     const measurementsCard = document.querySelector('.measurements-card');
     if (!measurementsCard) return;
-    
+
     const day = new Date(currentEditingDate + 'T12:00:00Z').getDay();
     const isFriday = (day === 5);
     const isTomorrow = (currentEditingDate === '2026-04-27');
-    
+
     const shouldShow = isFriday || isTomorrow;
     measurementsCard.classList.toggle('hidden', !shouldShow);
 }
@@ -1275,7 +1275,9 @@ async function fetchDataFromCloud() {
         localStorage.setItem('diario-daily-notes', JSON.stringify(dailyNotesData));
         localStorage.setItem('diario-goals', JSON.stringify(weeklyGoals));
 
-        loadTasks(); // Reload current view
+        loadTasks(); 
+        updateInputsForDate(); // Aggiunto per riempire i campi Peso, Passi, ecc.
+        renderTasks(); // Aggiunto per mostrare orari e dettagli attività
         renderAnalysis();
         renderWaterTracker();
     }
@@ -1332,7 +1334,7 @@ function renderMeasurementsAnalysis() {
     const labels = filteredDates.map(d => d.split('-').reverse().slice(0, 2).join('/'));
 
     if (measurementsChartInstance) measurementsChartInstance.destroy();
-    
+
     measurementsChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1392,7 +1394,7 @@ function renderWaterAnalysis() {
     const labels = filteredDates.map(d => d.split('-').reverse().slice(0, 2).join('/'));
 
     if (waterChartInstance) waterChartInstance.destroy();
-    
+
     waterChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
