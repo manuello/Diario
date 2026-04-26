@@ -1256,16 +1256,18 @@ async function fetchDataFromCloud() {
 
     if (data && data.data) {
         const cloudData = data.data;
-        historyData = cloudData.history || historyData;
-        weightData = cloudData.weight || weightData;
-        stepsData = cloudData.steps || stepsData;
-        dailyDistanceData = cloudData.distance || dailyDistanceData;
-        waterData = cloudData.water || waterData;
-        measurementsData = cloudData.measurements || measurementsData;
-        dailyNotesData = cloudData.notes || dailyNotesData;
-        weeklyGoals = cloudData.goals || weeklyGoals;
-
-        // Sync local storage
+        
+        // Merge Cloud Data
+        if (cloudData.history) historyData = cloudData.history;
+        if (cloudData.weight) weightData = cloudData.weight;
+        if (cloudData.steps) stepsData = cloudData.steps;
+        if (cloudData.distance) dailyDistanceData = cloudData.distance;
+        if (cloudData.water) waterData = cloudData.water;
+        if (cloudData.measurements) measurementsData = cloudData.measurements;
+        if (cloudData.notes) dailyNotesData = cloudData.notes;
+        if (cloudData.goals) weeklyGoals = cloudData.goals;
+        
+        // Save to Local for offline persistence
         localStorage.setItem('diario-history', JSON.stringify(historyData));
         localStorage.setItem('diario-weight', JSON.stringify(weightData));
         localStorage.setItem('diario-steps', JSON.stringify(stepsData));
@@ -1275,11 +1277,13 @@ async function fetchDataFromCloud() {
         localStorage.setItem('diario-daily-notes', JSON.stringify(dailyNotesData));
         localStorage.setItem('diario-goals', JSON.stringify(weeklyGoals));
 
-        loadTasks(); 
-        updateInputsForDate(); // Aggiunto per riempire i campi Peso, Passi, ecc.
-        renderTasks(); // Aggiunto per mostrare orari e dettagli attività
+        // CRITICAL: Refresh the entire UI for the current date
+        const tasks = historyData[currentEditingDate] || JSON.parse(JSON.stringify(defaultFixedTasks));
+        renderTasks(tasks);
+        updateInputsForDate();
         renderAnalysis();
         renderWaterTracker();
+        console.log("Cloud Data applied successfully for:", currentEditingDate);
     }
 }
 
