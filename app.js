@@ -208,6 +208,9 @@ function setupEventListeners() {
             if (tab === 'today') renderTasks();
             if (tab === 'history') renderHistory();
             if (tab === 'analysis') renderAnalysis();
+            
+            // Sincronizzazione automatica al cambio scheda
+            fetchDataFromCloud();
         });
     });
 
@@ -320,6 +323,18 @@ function setupEventListeners() {
             });
         });
     });
+
+    // Sincronizzazione automatica quando si torna sull'app (es. sblocco telefono)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            fetchDataFromCloud();
+        }
+    });
+
+    // Sincronizzazione periodica ogni 60 secondi
+    setInterval(() => {
+        if (currentUser) fetchDataFromCloud();
+    }, 60000);
 
     // Goals - Safe listeners
     const editGoalsBtn = document.getElementById('edit-goals-btn');
