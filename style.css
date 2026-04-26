@@ -991,3 +991,66 @@ svg {
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
 }
+/* Responsive Mobile Refinements */
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+        background-attachment: scroll;
+    }
+
+    .app-container {
+        margin-top: 0;
+        border-radius: 0;
+        padding: 1.5rem;
+        min-height: 100vh;
+        border: none;
+    }
+
+    header h1 {
+        font-size: 2.2rem;
+        margin-top: 1rem;
+    }
+
+    .header-actions {
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tab-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        flex: 1;
+        text-align: center;
+    }
+
+    .analysis-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .water-btn {
+        padding: 1.2rem !important;
+        font-size: 1.2rem !important;
+    }
+
+    .modal-content {
+        width: 95% !important;
+        padding: 1.5rem !important;
+        margin: 10px;
+    }
+
+    /* Fixed bottom navigation feel for tabs */
+    .tabs {
+        position: sticky;
+        top: 0;
+        background: var(--bg-color);
+        z-index: 100;
+        padding: 1rem 0;
+        margin-top: 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+}

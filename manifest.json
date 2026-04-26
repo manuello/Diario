@@ -1,0 +1,17 @@
+{
+  "name": "Diario Benessere",
+  "short_name": "Diario",
+  "description": "Il tuo compagno quotidiano per salute e fitness",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3248/3248154.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
